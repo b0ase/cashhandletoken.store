@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String @id @default(cuid())
+  handcashHandle String @unique
+  email        String?
+  authToken    String?
+  displayName  String?
+  profilePictureUrl String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  ownedTokens  Token[] @relation("TokenOwner")
+  tokenHoldings TokenHolding[]
+  sellOrders   SellOrder[]
+  buyOrders    BuyOrder[]
+  
+  @@map("users")
+}
+
+model Token {
+  id           String @id @default(cuid())
+  symbol       String @unique // e.g., $JohnTheBaker
+  handcashHandle String @unique
+  totalSupply  BigInt @default(1000000000) // 1 billion by default
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Token metadata
+  bsvTxId      String? // BSV transaction ID for token creation
+  tokenType    String @default("BSV_TOKEN") // BSV_TOKEN, ORDINAL, STAS
+  
+  // Relations
+  owner        User @relation("TokenOwner", fields: [ownerId], references: [id])
+  ownerId      String
+  holdings     TokenHolding[]
+  sellOrders   SellOrder[]
+  buyOrders    BuyOrder[]
+  dividendPayments DividendPayment[]
+  
+  @@map("tokens")
+}
+
+model TokenHolding {
+  id           String @id @default(cuid())
+  amount       BigInt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  user         User @relation(fields: [userId], references: [id])
+  userId       String
+  token        Token @relation(fields: [tokenId], references: [id])
+  tokenId      String
+  
+  @@unique([userId, tokenId])
+  @@map("token_holdings")
+}
+
+model SellOrder {
+  id           String @id @default(cuid())
+  amount       BigInt // Number of tokens to sell
+  pricePerToken Decimal // Price per token in USD
+  totalValue   Decimal // Total value of the order
+  status       String @default("ACTIVE") // ACTIVE, FILLED, CANCELLED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  seller       User @relation(fields: [sellerId], references: [id])
+  sellerId     String
+  token        Token @relation(fields: [tokenId], references: [id])
+  tokenId      String
+  
+  @@map("sell_orders")
+}
+
+model BuyOrder {
+  id           String @id @default(cuid())
+  amount       BigInt // Number of tokens to buy
+  pricePerToken Decimal // Price per token in USD
+  totalValue   Decimal // Total value of the order
+  status       String @default("ACTIVE") // ACTIVE, FILLED, CANCELLED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  buyer        User @relation(fields: [buyerId], references: [id])
+  buyerId      String
+  token        Token @relation(fields: [tokenId], references: [id])
+  tokenId      String
+  
+  @@map("buy_orders")
+}
+
+model DividendPayment {
+  id           String @id @default(cuid())
+  totalAmount  Decimal // Total dividend payment received
+  paymentTxId  String? // BSV transaction ID
+  distributedAmount Decimal @default(0) // Amount distributed to holders
+  remainingAmount Decimal // Amount not distributed (due to network fees)
+  createdAt    DateTime @default(now())
+  
+  // Relations
+  token        Token @relation(fields: [tokenId], references: [id])
+  tokenId      String
+  distributions DividendDistribution[]
+  
+  @@map("dividend_payments")
+}
+
+model DividendDistribution {
+  id           String @id @default(cuid())
+  amount       Decimal
+  txId         String? // BSV transaction ID for the payout
+  status       String @default("PENDING") // PENDING, COMPLETED, FAILED
+  createdAt    DateTime @default(now())
+  
+  // Relations
+  payment      DividendPayment @relation(fields: [paymentId], references: [id])
+  paymentId    String
+  
+  @@map("dividend_distributions")
+}
