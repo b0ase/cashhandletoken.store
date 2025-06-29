@@ -140,8 +140,8 @@ export default function Dashboard() {
               </div>
               <h3 className="text-xl font-semibold text-white mb-2">Trade Tokens</h3>
               <p className="text-gray-300">
-                Buy and sell tokens representing HandCash handles. Each token is backed by 1 billion shares, 
-                with minimum trading units of 200,000 tokens.
+                Buy and sell tokens representing HandCash handles of any amount. Each token is backed by 1 billion shares 
+                that can be traded freely on the marketplace.
               </p>
             </div>
             <div className="text-center">
@@ -151,7 +151,8 @@ export default function Dashboard() {
               <h3 className="text-xl font-semibold text-white mb-2">Earn Dividends</h3>
               <p className="text-gray-300">
                 When payments are made to a HandCash handle, they&apos;re automatically distributed as dividends 
-                to token holders proportional to their share ownership.
+                to token holders proportional to their share ownership. Only holders with more than 200,000 tokens 
+                receive dividends due to network fees.
               </p>
             </div>
           </div>

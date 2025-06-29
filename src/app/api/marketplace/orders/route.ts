@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
 
-const MINIMUM_TRANCHE = 200000; // 1 billion ÷ 5000
-
 export async function GET() {
   try {
     const sellOrders = await prisma.sellOrder.findMany({
@@ -58,9 +56,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (amount < MINIMUM_TRANCHE) {
+    if (amount <= 0) {
       return NextResponse.json(
-        { error: `Minimum sell amount is ${MINIMUM_TRANCHE.toLocaleString()} tokens` },
+        { error: 'Amount must be greater than 0' },
         { status: 400 }
       );
     }

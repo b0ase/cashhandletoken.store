@@ -25,7 +25,7 @@ interface UserProfile {
   displayName: string;
 }
 
-const MINIMUM_TRANCHE = 200000; // 1 billion ÷ 5000
+const MINIMUM_TRANCHE = 200000; // Threshold for dividend eligibility
 
 export default function Marketplace() {
   const [sellOrders, setSellOrders] = useState<SellOrder[]>([]);
@@ -75,8 +75,8 @@ export default function Marketplace() {
     }
 
     const amount = parseInt(createOrderData.amount);
-    if (amount < MINIMUM_TRANCHE) {
-      alert(`Minimum sell amount is ${MINIMUM_TRANCHE.toLocaleString()} tokens`);
+    if (amount <= 0) {
+      alert('Amount must be greater than 0');
       return;
     }
 
@@ -163,8 +163,7 @@ export default function Marketplace() {
             <div>
               <h1 className="text-3xl font-bold text-white mb-4">Marketplace</h1>
               <p className="text-lg text-gray-300">
-                Buy and sell HandCash handle tokens with minimum tranches of{' '}
-                {MINIMUM_TRANCHE.toLocaleString()} tokens
+                Buy and sell HandCash handle tokens of any amount
               </p>
             </div>
             {user && (
@@ -180,16 +179,16 @@ export default function Marketplace() {
         </div>
 
         {/* Important Notice */}
-        <div className="bg-yellow-900 border border-yellow-600 rounded-lg p-4 mb-6">
+        <div className="bg-blue-900 border border-blue-600 rounded-lg p-4 mb-6">
           <div className="flex">
-            <AlertCircle className="h-5 w-5 text-yellow-400 mt-0.5 mr-3" />
+            <AlertCircle className="h-5 w-5 text-blue-400 mt-0.5 mr-3" />
             <div>
-              <h3 className="text-sm font-medium text-yellow-200">
-                Important: Dividend Eligibility
+              <h3 className="text-sm font-medium text-blue-200">
+                Dividend Eligibility
               </h3>
-              <p className="text-sm text-yellow-300 mt-1">
+              <p className="text-sm text-blue-300 mt-1">
                 Only holders with more than {MINIMUM_TRANCHE.toLocaleString()} tokens 
-                receive dividend payments. Smaller holdings will not receive payouts due to network fees.
+                receive dividend payments. All amounts can be traded freely.
               </p>
             </div>
           </div>
