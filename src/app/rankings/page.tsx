@@ -30,6 +30,7 @@ export default function Rankings() {
   const [tokenImages, setTokenImages] = useState<UnsplashImage[]>([]);
 
   useEffect(() => {
+    console.log('Rankings page mounted, fetching tokens...');
     fetchTokens();
     
     // Load images
@@ -38,22 +39,26 @@ export default function Rankings() {
   }, []);
 
   const fetchTokens = async () => {
+    console.log('Fetching tokens...');
     try {
       setLoading(true);
       const response = await fetch('/api/tokens/rankings');
+      console.log('API response:', response);
       if (response.ok) {
         const data = await response.json();
+        console.log('API data:', data);
         if (data && data.length > 0) {
+          console.log('Setting API data:', data.length, 'tokens');
           setTokens(data);
+          setLoading(false);
           return;
         }
       }
     } catch (error) {
       console.error('Error fetching token rankings:', error);
-    } finally {
-      setLoading(false);
     }
     
+    console.log('Using fallback data - setting 20 mock tokens');
     // Always set comprehensive b0ase ecosystem data as fallback
     setTokens([
       {
@@ -277,6 +282,7 @@ export default function Rankings() {
         owner: { displayName: 'Web Strategy Consulting' }
       }
     ]);
+    setLoading(false);
   };
 
   const handleSort = (field: keyof TokenRanking) => {
