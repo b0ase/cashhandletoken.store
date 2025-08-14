@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Trophy, Crown, Medal, TrendingUp, TrendingDown, Users, DollarSign, BarChart3, Filter, Search } from 'lucide-react';
+import { Trophy, Crown, Medal, TrendingUp, TrendingDown, Users, DollarSign, BarChart3, Filter, Search, Plus } from 'lucide-react';
+import Link from 'next/link';
 import { getThemedImage, getUnsplashImages, type UnsplashImage } from '@/lib/unsplash';
 
 interface TokenRanking {
@@ -452,9 +453,16 @@ export default function Rankings() {
               <h1 className="text-5xl font-bold text-white mb-4">
                 Token Leaderboard
               </h1>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+              <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
                 Discover the top performing HandCash handle tokens by market cap, volume, and community engagement
               </p>
+              <Link
+                href="/register"
+                className="inline-flex items-center bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Register New Handle
+              </Link>
             </div>
           </div>
         </div>

@@ -60,6 +60,12 @@ function Navigation() {
               <ShoppingCart className="h-4 w-4 mr-2" />
               Marketplace
             </Link>
+            <Link
+              href="/register"
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 ml-2"
+            >
+              Register Handle
+            </Link>
           </nav>
 
           {/* Mobile menu button */}
@@ -94,6 +100,12 @@ function Navigation() {
           >
             <ShoppingCart className="h-5 w-5 mr-3" />
             Marketplace
+          </Link>
+          <Link
+            href="/register"
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white block px-3 py-2 rounded-md text-base font-medium flex items-center"
+          >
+            Register Handle
           </Link>
         </div>
       </div>
