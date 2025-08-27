@@ -3,7 +3,7 @@ import { handCashService } from '@/lib/handcash';
 import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const authToken = searchParams.get('authToken');
@@ -40,8 +40,8 @@ export async function GET(request: NextRequest) {
       maxAge: 30 * 24 * 60 * 60, // 30 days
     });
 
-    // Redirect to dashboard
-    return NextResponse.redirect(new URL('/', request.url));
+    // Redirect to user dashboard after successful login
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   } catch (error) {
     console.error('Error in HandCash callback:', error);
     return NextResponse.redirect(new URL('/?error=auth-failed', request.url));

@@ -1,21 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-
-interface TokenRanking {
-  id: string;
-  symbol: string;
-  handcashHandle: string;
-  price: number;
-  marketCap: number;
-  holders: number;
-  volume24h: number;
-  change24h: number;
-  owner: {
-    displayName: string;
-    profilePictureUrl?: string;
-  };
-}
+import { DEMO_TOKENS, type TokenRanking } from '@/lib/demo-data';
 
 export default function Rankings() {
   const [tokens, setTokens] = useState<TokenRanking[]>([]);
@@ -30,14 +16,50 @@ export default function Rankings() {
   const fetchTokens = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/tokens/rankings');
-      if (response.ok) {
-        const data = await response.json();
-        setTokens(data);
+      console.log('Rankings page mounted');
+      console.log('Fetching token rankings...');
+      
+      // Try to fetch from API, fallback to demo data
+      try {
+        const response = await fetch('/api/tokens/rankings');
+        console.log('API response:', response.status);
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            console.log('Using API data:', data.length, 'tokens');
+            setTokens(data);
+          } else {
+            console.log('API returned empty, using demo data');
+            setTokens(DEMO_TOKENS);
+          }
+        } else {
+          // Try the new Divvy rankings API
+          const divvyResponse = await fetch('/api/divvy/rankings');
+          if (divvyResponse.ok) {
+            const divvyData = await divvyResponse.json();
+            if (divvyData && divvyData.length > 0) {
+              console.log('Using Divvy API data:', divvyData.length, 'tokens');
+              setTokens(divvyData);
+            } else {
+              console.log('Divvy API empty, using demo data');
+              setTokens(DEMO_TOKENS);
+            }
+          } else {
+            console.log('Both APIs failed, using demo data');
+            setTokens(DEMO_TOKENS);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching from API:', error);
+        console.log('Using demo data due to error');
+        setTokens(DEMO_TOKENS);
       }
     } catch (error) {
-      console.error('Error fetching token rankings:', error);
+      console.error('Error in fetchTokens:', error);
+      setTokens(DEMO_TOKENS);
     } finally {
+      console.log('Setting loading to false');
       setLoading(false);
     }
   };
@@ -87,10 +109,18 @@ export default function Rankings() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-4">Token Rankings</h1>
+          <div className="min-h-screen bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Navigation */}
+        <nav className="flex justify-center space-x-8 mb-8">
+          <a href="/" className="text-gray-300 hover:text-white font-medium pb-1 transition-colors">Home</a>
+          <a href="/marketplace" className="text-gray-300 hover:text-white font-medium pb-1 transition-colors">Marketplace</a>
+          <a href="/rankings" className="text-white font-medium border-b-2 border-blue-500 pb-1">Rankings</a>
+        </nav>
+
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-4">Token Rankings</h1>
             <p className="text-gray-300">
               Discover and track the most popular HandCash handle tokens by market cap, volume, and holder count.
             </p>
@@ -124,12 +154,22 @@ export default function Rankings() {
                 <button
                   onClick={() => handleSort('holders')}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    sortField === 'holders' 
-                      ? 'bg-blue-600 text-white' 
+                    sortField === 'holders'
+                      ? 'bg-blue-600 text-white'
                       : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                   }`}
                 >
                   Holders {sortField === 'holders' && (sortDirection === 'desc' ? '↓' : '↑')}
+                </button>
+                <button
+                  onClick={() => handleSort('totalDividendsPaid')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    sortField === 'totalDividendsPaid'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  Dividends {sortField === 'totalDividendsPaid' && (sortDirection === 'desc' ? '↓' : '↑')}
                 </button>
               </div>
             </div>
@@ -241,6 +281,9 @@ export default function Rankings() {
                     Holders
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                    Dividends
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                     24h Change
                   </th>
                 </tr>
@@ -277,6 +320,14 @@ export default function Rankings() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                       {token.holders.toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                      <div className="text-green-400 font-medium">
+                        ${token.totalDividendsPaid.toFixed(2)}
+                      </div>
+                      <div className="text-gray-500 text-xs">
+                        {token.dividendPayments} payments
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <span className={`${

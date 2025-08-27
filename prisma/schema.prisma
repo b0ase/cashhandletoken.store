@@ -40,11 +40,23 @@ model Token {
   description  String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  
+
   // Token metadata
   bsvTxId      String? // BSV transaction ID for token creation
-  tokenType    String @default("BSV_TOKEN") // BSV_TOKEN, ORDINAL, STAS
-  
+  tokenType    String @default("ORDINAL") // ORDINAL, BSV_TOKEN, STAS
+
+  // Ordinals-specific fields
+  inscriptionId    String? // Ordinals inscription ID
+  contentType      String? // Ordinals content type (e.g., application/json)
+  ordinalsContent  String? // Ordinals inscription content
+  ordinalNumber    BigInt? // Ordinal number in the sequence
+  satoshiNumber    BigInt? // Satoshi number where inscription is located
+
+  // BSV-specific fields
+  mintingTxId      String? // Transaction ID that minted the token
+  mintingAddress   String? // Address that minted the token
+  confirmedAt      DateTime? // When the minting transaction was confirmed
+
   // Relations
   owner        User @relation("TokenOwner", fields: [ownerId], references: [id])
   ownerId      String
@@ -52,7 +64,8 @@ model Token {
   sellOrders   SellOrder[]
   buyOrders    BuyOrder[]
   dividendPayments DividendPayment[]
-  
+  bsvTransactions BSVTransaction[]
+
   @@map("tokens")
 }
 
@@ -130,10 +143,41 @@ model DividendDistribution {
   txId         String? // BSV transaction ID for the payout
   status       String @default("PENDING") // PENDING, COMPLETED, FAILED
   createdAt    DateTime @default(now())
-  
+
   // Relations
   payment      DividendPayment @relation(fields: [paymentId], references: [id])
   paymentId    String
-  
+
   @@map("dividend_distributions")
+}
+
+model BSVTransaction {
+  id           String @id @default(cuid())
+  txId         String @unique // BSV transaction ID
+  inscriptionId String? // Ordinals inscription ID if applicable
+  transactionType String // MINT, TRANSFER, BURN, DIVIDEND
+
+  // Transaction details
+  fromAddress  String
+  toAddress    String?
+  amount       BigInt? // Amount in satoshis
+  fee          BigInt? // Transaction fee in satoshis
+
+  // Block information
+  blockHeight  BigInt?
+  blockHash    String?
+  confirmations BigInt @default(0)
+
+  // Status
+  status       String @default("PENDING") // PENDING, CONFIRMED, FAILED
+  confirmedAt  DateTime?
+
+  // Relations
+  token        Token? @relation(fields: [tokenId], references: [id])
+  tokenId      String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("bsv_transactions")
 }

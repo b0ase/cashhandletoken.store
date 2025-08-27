@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import { Coins, TrendingUp, Users, DollarSign } from 'lucide-react';
+import { DEMO_TOKENS } from '@/lib/demo-data';
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
+  const [topTokens] = useState(DEMO_TOKENS.slice(0, 5));
 
   const handleHandCashLogin = async () => {
     setIsLoading(true);
@@ -28,14 +30,44 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-12">
+                  {/* Hero Banner */}
+                  {/* Navigation */}
+        <nav className="flex justify-center space-x-8 mb-8">
+          <a href="/" className="text-white font-medium border-b-2 border-blue-500 pb-1">Home</a>
+          <a href="/marketplace" className="text-gray-300 hover:text-white font-medium pb-1 transition-colors">Marketplace</a>
+          <a href="/rankings" className="text-gray-300 hover:text-white font-medium pb-1 transition-colors">Rankings</a>
+          <a href="/divvy" className="text-gray-300 hover:text-white font-medium pb-1 transition-colors">Divvy</a>
+        </nav>
+
+        <div className="text-center mb-8">
+          <div className="mb-8">
+            <img 
+              src="/images/banners/cashhandle-dashboard.webp"
+              alt="CashHandle Token Store Dashboard"
+              className="w-full max-w-5xl mx-auto rounded-xl shadow-2xl"
+            />
+          </div>
           <h1 className="text-4xl font-bold text-white mb-4">
             Welcome to CashHandle Token Store
           </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-6">
             Create and trade tokens based on HandCash handles. Each token represents a share in future 
             payments to that HandCash handle, with automatic dividend distribution.
           </p>
+          <div className="flex justify-center space-x-4">
+            <a 
+              href="/marketplace" 
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors"
+            >
+              Explore Marketplace
+            </a>
+            <a 
+              href="/rankings" 
+              className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-3 px-8 rounded-lg transition-colors"
+            >
+              View Rankings
+            </a>
+          </div>
         </div>
 
         {/* HandCash Connection Section */}
@@ -154,6 +186,75 @@ export default function Dashboard() {
                 to token holders proportional to their share ownership. Only holders with more than 200,000 tokens 
                 receive dividends due to network fees.
               </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Top Rankings Preview */}
+        <div className="mb-12">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-white">Top Trending Tokens</h2>
+            <a href="/rankings" className="text-blue-400 hover:text-blue-300 transition-colors">
+              View All Rankings →
+            </a>
+          </div>
+          <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-700">
+                <thead className="bg-gray-900">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Rank
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Token
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Price
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Market Cap
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      24h Change
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                      Dividends
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-gray-800 divide-y divide-gray-700">
+                  {topTokens.map((token, index) => (
+                    <tr key={token.id} className="hover:bg-gray-700 transition-colors cursor-pointer" onClick={() => window.location.href = '/marketplace'}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300">
+                        {index + 1}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div>
+                          <div className="text-sm font-medium text-white">{token.symbol}</div>
+                          <div className="text-sm text-gray-400">{token.handcashHandle}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        ${token.price.toFixed(6)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        ${(token.marketCap / 1000000).toFixed(2)}M
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <span className={`${
+                          token.change24h > 0 ? 'text-green-400' : 'text-red-400'
+                        }`}>
+                          {token.change24h > 0 ? '+' : ''}{token.change24h.toFixed(2)}%
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-green-400 font-medium">
+                        ${token.totalDividendsPaid.toFixed(0)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
